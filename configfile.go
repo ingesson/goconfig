@@ -209,16 +209,21 @@ func (c *ConfigFile) read(buf *bufio.Reader) error {
 	var section, option string
 
 	for {
-		l, err := buf.ReadString('\n') // parse line-by-line
+		lb, isPrefix, err := buf.ReadLine()
+		if isPrefix == true {
+			return errors.New(fmt.Sprintf("Line to long for buffer, cannot continue. Line prefix: %s", lb))
+		}
 		if err == io.EOF {
-			if len(l) == 0 {
+			if len(lb) == 0 {
 				break
 			}
 		} else if err != nil {
 			return err
 		}
 
+		l := string(lb)
 		l = strings.TrimSpace(l)
+
 		// switch written for readability (not performance)
 		switch {
 		case len(l) == 0: // empty line
