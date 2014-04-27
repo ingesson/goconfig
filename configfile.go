@@ -381,12 +381,17 @@ func (c *ConfigFile) GetOptions(section string) ([]string, error) {
 		)
 	}
 
-	options := make([]string, len(c.data[DefaultSection])+len(c.data[section]))
-
+	// If default section, don't get it twice
 	i := 0
-	for s, _ := range c.data[DefaultSection] {
-		options[i] = s
-		i++
+	var options []string
+	if section != "default" {
+		options = make([]string, len(c.data[DefaultSection])+len(c.data[section]))
+		for s, _ := range c.data[DefaultSection] {
+			options[i] = s
+			i++
+		}
+	} else {
+		options = make([]string, len(c.data[DefaultSection]))
 	}
 
 	for s, _ := range c.data[section] {
