@@ -370,8 +370,8 @@ func (c *ConfigFile) HasSection(section string) bool {
 // GetOptions returns the list of options available in the given section.
 // It returns an error if the section does not exist and an empty list if the
 // section is empty.
-// Options within the default section are also included.
-func (c *ConfigFile) GetOptions(section string) ([]string, error) {
+// If includedefault == True, the default section options are always included.
+func (c *ConfigFile) GetOptions(section string, includedefault bool) ([]string, error) {
 
 	section = strings.ToLower(section)
 
@@ -381,17 +381,22 @@ func (c *ConfigFile) GetOptions(section string) ([]string, error) {
 		)
 	}
 
-	// If default section, don't get it twice
-	i := 0
+	// Make []string for options
 	var options []string
-	if section != "default" {
+	if includedefault == true {
 		options = make([]string, len(c.data[DefaultSection])+len(c.data[section]))
+	} else {
+		options = make([]string, len(c.data[section]))
+	}
+
+	// If we should include default and it's not the default section
+	// we are fetching get default
+	i := 0
+	if includedefault == true && section != "default" {
 		for s, _ := range c.data[DefaultSection] {
 			options[i] = s
 			i++
 		}
-	} else {
-		options = make([]string, len(c.data[DefaultSection]))
 	}
 
 	for s, _ := range c.data[section] {
